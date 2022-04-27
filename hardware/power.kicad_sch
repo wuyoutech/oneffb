@@ -1015,7 +1015,7 @@
   )
   (wire (pts (xy 40.64 83.82) (xy 48.26 83.82))
     (stroke (width 0) (type default) (color 0 0 0 0))
-    (uuid 5bab4642-7745-4fb6-8e03-860d07c897fa)
+    (uuid 5bab4642-7745-4fb6-8e03-860d07c897fb)
   )
   (wire (pts (xy 88.9 90.17) (xy 97.79 90.17))
     (stroke (width 0) (type default) (color 0 0 0 0))
