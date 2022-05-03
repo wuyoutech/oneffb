@@ -7,7 +7,10 @@
                 "${workspaceFolder}/src/platform",
                 "${workspaceFolder}/src/platform/cmsis",
                 "${workspaceFolder}/src/platform/std_periph/inc",
-                "${workspaceFolder}/src/peripheral"
+                "${workspaceFolder}/src/peripheral",
+                "${workspaceFolder}/src/usb/STM32_USB_OTG_Driver/inc",
+                "${workspaceFolder}/src/usb/STM32_USB_Device_Library/Core/inc",
+                "${workspaceFolder}/src/usb/inc"
             ],
             "defines": ["STM32F40_41xxx","USE_STDPERIPH_DRIVER"],
             "compilerPath": "/home/wuyou/gcc-arm-none-eabi-10.3-2021.10/bin/arm-none-eabi-gcc",

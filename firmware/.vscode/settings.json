@@ -4,6 +4,13 @@
         "core_cm0.h": "c",
         "stm32f4xx.h": "c",
         "stm32f4xx_conf.h": "c",
-        "stm32f4xx_dbgmcu.h": "c"
+        "stm32f4xx_dbgmcu.h": "c",
+        "usb_conf.h": "c",
+        "usb_regs.h": "c",
+        "usb_core.h": "c",
+        "usbd_core.h": "c",
+        "usbd_def.h": "c",
+        "usbd_desc.h": "c",
+        "usbd_cdc_core_loopback.h": "c"
     }
 }
