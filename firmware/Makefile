@@ -12,8 +12,12 @@ opt = -Og
 asm_sources +=
 c_sources += src/main.c
 c_sources += $(wildcard src/peripheral/src/*.c)
-c_sources += $(wildcard src/usb/src/*.c)
-c_sources += $(wildcard src/usb/STM32_USB_Device_Library/Core/src/*.c)
+# add tinyusb
+c_sources += $(wildcard src/tinyusb/src/*.c)
+c_sources += $(wildcard src/tinyusb/src/device/*.c)
+c_sources += $(wildcard src/tinyusb/src/class/*/*.c)
+c_sources += $(wildcard src/tinyusb/src/portable/st/synopsys/*.c)
+c_sources += $(wildcard src/tinyusb/src/common/*.c)
 
 # defines
 defs += -DUSE_STDPERIPH_DRIVER
@@ -23,9 +27,9 @@ defs += -DSTM32F40_41xxx
 includes += -Isrc
 includes += -Isrc/peripheral/inc
 
-includes += -Isrc/usb/inc
-includes += -Isrc/usb/STM32_USB_OTG_Driver/inc
-includes += -Isrc/usb/STM32_USB_Device_Library/Core/inc
+includes += -Isrc/tinyusb/src
+includes += -Isrc/tinyusb/src/portable/st/synopsys
+includes += -Isrc/tinyusb/src/common
 
 
 

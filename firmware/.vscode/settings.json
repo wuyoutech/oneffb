@@ -11,6 +11,14 @@
         "usbd_core.h": "c",
         "usbd_def.h": "c",
         "usbd_desc.h": "c",
-        "usbd_cdc_core_loopback.h": "c"
+        "usbd_cdc_core_loopback.h": "c",
+        "tusb_option.h": "c",
+        "tusb_compiler.h": "c",
+        "tusb_config.h": "c",
+        "system_stm32f4xx.h": "c",
+        "core_cm4.h": "c",
+        "stdint.h": "c",
+        "dcd.h": "c",
+        "stm32f4xx_usb.h": "c"
     }
 }
