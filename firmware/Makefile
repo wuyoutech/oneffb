@@ -4,7 +4,7 @@ build_dir = build
 src_dir = src
 
 # project name & config 
-target = template
+target = oneffb
 debug = 1
 opt = -Og
 
@@ -21,7 +21,7 @@ c_sources += $(wildcard src/tinyusb/src/common/*.c)
 
 # defines
 defs += -DUSE_STDPERIPH_DRIVER
-defs += -DSTM32F40_41xxx
+defs += -DSTM32F411xE
 
 # includes 
 includes += -Isrc
