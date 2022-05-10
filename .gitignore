@@ -2,3 +2,6 @@ hardware/OneFFB-backups/
 hardware/fp-info-cache
 hardware/#auto_saved_files#
 firmware/build
+firmware/*.elf
+firmware/*.hex
+firmware/*.bin
