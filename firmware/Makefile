@@ -11,12 +11,13 @@ opt = -Og
 # sources 
 asm_sources +=
 c_sources += src/main.c
+c_sources += src/usb_descriptors.c
 c_sources += $(wildcard src/peripheral/src/*.c)
 # add tinyusb
 c_sources += $(wildcard src/tinyusb/src/*.c)
 c_sources += $(wildcard src/tinyusb/src/device/*.c)
 c_sources += $(wildcard src/tinyusb/src/class/*/*.c)
-c_sources += $(wildcard src/tinyusb/src/portable/st/synopsys/*.c)
+c_sources += $(wildcard src/tinyusb/src/portable/synopsys/dwc2/*.c)
 c_sources += $(wildcard src/tinyusb/src/common/*.c)
 
 # defines

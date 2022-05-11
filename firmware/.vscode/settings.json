@@ -19,6 +19,9 @@
         "core_cm4.h": "c",
         "stdint.h": "c",
         "dcd.h": "c",
-        "stm32f4xx_usb.h": "c"
+        "stm32f4xx_usb.h": "c",
+        "limits": "c",
+        "compare": "c",
+        "new": "c"
     }
 }
