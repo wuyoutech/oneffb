@@ -6,7 +6,6 @@
 #include <led.h>
 #include <tusb.h>
 
-
 void led_blinking_task(void);
 void cdc_task(void);
 void usb_hal_init(void);
@@ -114,16 +113,6 @@ void tud_cdc_line_state_cb(uint8_t itf, bool dtr, bool rts) {
 
 // Invoked when CDC interface received data from host
 void tud_cdc_rx_cb(uint8_t itf) { (void)itf; }
-
-#define __HAL_RCC_PWR_CLK_ENABLE()                                             \
-    do {                                                                       \
-        __IO uint32_t tmpreg = 0x00U;                                          \
-        SET_BIT(RCC->APB1ENR, RCC_APB1ENR_PWREN);                              \
-        /* Delay after an RCC peripheral clock enabling */                     \
-        tmpreg = READ_BIT(RCC->APB1ENR, RCC_APB1ENR_PWREN);                    \
-        (void)(tmpreg);                                                        \
-    } while (0U)
-
 void board_led_write(bool state) { GPIO_WriteBit(GPIOC, GPIO_Pin_13, state); }
 
 #define USB_OTG_FS ((USB_OTG_GlobalTypeDef *)USB_OTG_FS_PERIPH_BASE)
@@ -135,7 +124,7 @@ static inline void board_vbus_sense_init(void) {
 }
 
 void board_init(void) {
-    __HAL_RCC_PWR_CLK_ENABLE();
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
     /* The voltage scaling allows optimizing the power consumption when the
     device is clocked below the maximum system frequency, to update the voltage
     scaling value regarding system frequency refer to product datasheet. */
@@ -174,21 +163,6 @@ void board_init(void) {
     GPIO_Init(GPIOA, &GPIO_InitStrucutre);
     GPIO_PinAFConfig(GPIOA, GPIO_PinSource11, GPIO_AF_OTG_FS);
     GPIO_PinAFConfig(GPIOA, GPIO_PinSource12, GPIO_AF_OTG_FS);
-
-    /* configure vbus pin */
-    GPIO_InitStrucutre.GPIO_Pin = GPIO_Pin_9;
-    GPIO_InitStrucutre.GPIO_Mode = GPIO_Mode_IN;
-    GPIO_InitStrucutre.GPIO_PuPd = GPIO_PuPd_NOPULL;
-    GPIO_Init(GPIOA, &GPIO_InitStrucutre);
-
-    /* id pin */
-    GPIO_InitStrucutre.GPIO_Pin = GPIO_Pin_10;
-    GPIO_InitStrucutre.GPIO_Mode = GPIO_Mode_AF;
-    GPIO_InitStrucutre.GPIO_OType = GPIO_OType_OD;
-    GPIO_InitStrucutre.GPIO_PuPd = GPIO_PuPd_UP;
-    GPIO_InitStrucutre.GPIO_Speed = GPIO_Speed_100MHz;
-    GPIO_Init(GPIOA, &GPIO_InitStrucutre);
-    GPIO_PinAFConfig(GPIOA, GPIO_PinSource10, GPIO_AF_OTG_FS);
 
     /* Enable USB OTG clock */
     RCC_AHB2PeriphClockCmd(RCC_AHB2Periph_OTG_FS, ENABLE);
