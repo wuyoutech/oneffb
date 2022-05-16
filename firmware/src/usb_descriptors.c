@@ -23,8 +23,8 @@
  *
  */
 
-#include "tusb.h"
 #include "class/net/net_device.h"
+#include "tusb.h"
 
 /* A combination of interfaces must have a unique product id, since PC will save
  * device driver after the first plug. Same VID/PID with different interface e.g
@@ -46,17 +46,23 @@
 #define EPNUM_HID_IN 0x83
 #define EPNUM_HID_OUT 0x03
 
+#define HID_BINTERVAL 0x01
+// 1 = 1000hz, 2 = 500hz, 3 = 333hz 4 = 250hz, 5 = 200hz 6 = 166hz ...
+
+#define USB_HID_FFB_REPORT_DESC_SIZE 1229 - 16 // 1378
+
 // String Descriptor Index
 enum {
     STRID_LANGID = 0,
     STRID_MANUFACTURER,
     STRID_PRODUCT,
     STRID_SERIAL,
-    STRID_INTERFACE,
-    STRID_MAC
+    STRID_INTERFACE_NET,
+    STRID_MAC,
+    STRID_INTERFACE_HID
 };
 
-enum { ITF_NUM_CDC = 0, ITF_NUM_CDC_DATA, ITF_NUM_TOTAL };
+enum { ITF_NUM_CDC = 0, ITF_NUM_CDC_DATA, ITF_NUM_HID, ITF_NUM_TOTAL };
 
 enum { CONFIG_ID_RNDIS = 0, CONFIG_ID_ECM = 1, CONFIG_ID_COUNT };
 
@@ -95,7 +101,8 @@ uint8_t const *tud_descriptor_device_cb(void) {
 //--------------------------------------------------------------------+
 // Configuration Descriptor
 //--------------------------------------------------------------------+
-#define MAIN_CONFIG_TOTAL_LEN (TUD_CONFIG_DESC_LEN + TUD_RNDIS_DESC_LEN)
+#define MAIN_CONFIG_TOTAL_LEN                                                  \
+    (TUD_CONFIG_DESC_LEN + TUD_RNDIS_DESC_LEN + TUD_HID_DESC_LEN)
 #define ALT_CONFIG_TOTAL_LEN (TUD_CONFIG_DESC_LEN + TUD_CDC_ECM_DESC_LEN)
 
 static uint8_t const rndis_configuration[] = {
@@ -106,10 +113,17 @@ static uint8_t const rndis_configuration[] = {
 
     // Interface number, string index, EP notification address and size, EP data
     // address (out, in) and size.
-    TUD_RNDIS_DESCRIPTOR(ITF_NUM_CDC, STRID_INTERFACE, EPNUM_NET_NOTIF, 8,
+    TUD_RNDIS_DESCRIPTOR(ITF_NUM_CDC, STRID_INTERFACE_NET, EPNUM_NET_NOTIF, 8,
                          EPNUM_NET_OUT, EPNUM_NET_IN,
                          CFG_TUD_NET_ENDPOINT_SIZE),
-};
+
+    // HID Input & Output descriptor
+    // Interface number, string index, protocol, report descriptor len, EPOUT &
+    // IN address, size & polling interval
+    TUD_HID_INOUT_DESCRIPTOR(
+        ITF_NUM_HID, STRID_INTERFACE_HID, HID_ITF_PROTOCOL_NONE,
+        USB_HID_FFB_REPORT_DESC_SIZE, EPNUM_HID_OUT, EPNUM_HID_IN,
+        CFG_TUD_HID_EP_BUFSIZE, HID_BINTERVAL)};
 
 static uint8_t const ecm_configuration[] = {
     // Config number (index+1), interface count, string index, total length,
@@ -120,7 +134,7 @@ static uint8_t const ecm_configuration[] = {
     // Interface number, description string index, MAC address string index, EP
     // notification address and size, EP data address (out, in), and size, max
     // segment size.
-    TUD_CDC_ECM_DESCRIPTOR(ITF_NUM_CDC, STRID_INTERFACE, STRID_MAC,
+    TUD_CDC_ECM_DESCRIPTOR(ITF_NUM_CDC, STRID_INTERFACE_NET, STRID_MAC,
                            EPNUM_NET_NOTIF, 64, EPNUM_NET_OUT, EPNUM_NET_IN,
                            CFG_TUD_NET_ENDPOINT_SIZE, CFG_TUD_NET_MTU),
 };
@@ -151,10 +165,10 @@ static char const *string_desc_arr[] = {
     [STRID_LANGID] =
         (const char[]){0x09, 0x04},   // supported language is English (0x0409)
     [STRID_MANUFACTURER] = "TinyUSB", // Manufacturer
-    [STRID_PRODUCT] = "TinyUSB Device",             // Product
-    [STRID_SERIAL] = "123456",                      // Serial
-    [STRID_INTERFACE] = "TinyUSB Network Interface" // Interface Description
-
+    [STRID_PRODUCT] = "TinyUSB Device", // Product
+    [STRID_SERIAL] = "123456",          // Serial
+    [STRID_INTERFACE_NET] = "TinyUSB Network Interface",
+    [STRID_INTERFACE_HID] = "TinyUSB HID Gamingjoy Interface"
     // STRID_MAC index is handled separately
 };
 
