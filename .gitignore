@@ -5,3 +5,5 @@ firmware/build
 firmware/*.elf
 firmware/*.hex
 firmware/*.bin
+*.kicad_prl
+*.zip
