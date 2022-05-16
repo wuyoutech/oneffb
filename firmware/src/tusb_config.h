@@ -111,6 +111,8 @@
 // MSC Buffer size of Device Mass storage
 #define CFG_TUD_MSC_EP_BUFSIZE   512
 
+#define CFG_TUD_ECM_RNDIS         1
+
 #ifdef __cplusplus
  }
 #endif

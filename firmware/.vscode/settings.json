@@ -22,6 +22,11 @@
         "stm32f4xx_usb.h": "c",
         "limits": "c",
         "compare": "c",
-        "new": "c"
+        "new": "c",
+        "init.h": "c",
+        "ip4_addr.h": "c",
+        "opt.h": "c",
+        "debug.h": "c",
+        "net_device.h": "c"
     }
 }

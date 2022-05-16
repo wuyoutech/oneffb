@@ -9,7 +9,9 @@
                 "${workspaceFolder}/src/platform/cmsis",
                 "${workspaceFolder}/src/platform/std_periph/inc",
                 "${workspaceFolder}/src/peripheral/inc",
-                "${workspaceFolder}/src/tinyusb/src"
+                "${workspaceFolder}/src/tinyusb/src",
+                "${workspaceFolder}/src/lwip/src/include",
+                "${workspaceFolder}/src/networking"
             ],
             "defines": [
                 "STM32F411xE",
