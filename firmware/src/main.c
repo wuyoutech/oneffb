@@ -395,7 +395,7 @@ void hid_task(void) {
         return;
     start_ms += interval_ms;
 
-    uint32_t const btn = 0;
+    uint32_t const btn = GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0) > 0 ? 0 : 1;
 
     if (tud_suspended() && btn) {
         tud_remote_wakeup();
