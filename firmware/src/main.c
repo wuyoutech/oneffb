@@ -173,6 +173,7 @@ void led_blinking_task(void);
 void cdc_task(void);
 void usb_hal_init(void);
 void board_init(void);
+void hid_task(void);
 
 int main() {
     board_init();
@@ -194,6 +195,7 @@ int main() {
 
         // cdc_task();
         service_traffic();
+        hid_task();
     }
 }
 
@@ -352,7 +354,6 @@ void sys_arch_unprotect(sys_prot_t pval) { (void)pval; }
 uint32_t sys_now(void) { return board_millis(); }
 
 /* add callback function to avoid link error */
-uint8_t const *tud_hid_descriptor_report_cb(uint8_t instance) { return 0; }
 uint16_t tud_hid_get_report_cb(uint8_t instance, uint8_t report_id,
                                hid_report_type_t report_type, uint8_t *buffer,
                                uint16_t reqlen) {
@@ -362,3 +363,43 @@ uint16_t tud_hid_get_report_cb(uint8_t instance, uint8_t report_id,
 void tud_hid_set_report_cb(uint8_t itf, uint8_t report_id,
                            hid_report_type_t report_type, uint8_t const *buffer,
                            uint16_t bufsize) {}
+
+static void send_hid_report(uint8_t report_id, uint32_t btn) {
+    // skip if hid is not ready yet
+    if (!tud_hid_ready())
+        return;
+
+    // use to avoid send multiple consecutive zero report for keyboard
+    static bool has_keyboard_key = false;
+
+    if (btn) {
+        uint8_t keycode[6] = {0};
+        keycode[0] = HID_KEY_A;
+
+        tud_hid_keyboard_report(1, 0, keycode);
+        has_keyboard_key = true;
+    } else {
+        // send empty key report if previously has key pressed
+        if (has_keyboard_key)
+            tud_hid_keyboard_report(1, 0, NULL);
+        has_keyboard_key = false;
+    }
+}
+
+void hid_task(void) {
+    // Poll every 10ms
+    const uint32_t interval_ms = 10;
+    static uint32_t start_ms = 0;
+
+    if (board_millis() - start_ms < interval_ms)
+        return;
+    start_ms += interval_ms;
+
+    uint32_t const btn = 0;
+
+    if (tud_suspended() && btn) {
+        tud_remote_wakeup();
+    } else {
+        send_hid_report(1, btn);
+    }
+}
