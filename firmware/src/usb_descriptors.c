@@ -52,7 +52,8 @@ enum {
     STRID_MANUFACTURER,
     STRID_PRODUCT,
     STRID_SERIAL,
-    STRID_INTERFACE,
+    STRID_INTERFACE_NET,
+    STRID_INTERFACE_HID,
     STRID_MAC
 };
 
@@ -99,9 +100,8 @@ uint8_t const *tud_descriptor_device_cb(void) {
 enum { REPORT_ID_KEYBOARD = 1, REPORT_ID_COUNT };
 
 uint8_t const desc_hid_report[] = {
-    TUD_HID_REPORT_DESC_KEYBOARD(HID_REPORT_ID(REPORT_ID_KEYBOARD)),
-
-};
+    // TUD_HID_REPORT_DESC_KEYBOARD(HID_REPORT_ID(REPORT_ID_KEYBOARD)),
+    TUD_HID_REPORT_DESC_GAMEPAD(HID_REPORT_ID(REPORT_ID_KEYBOARD))};
 
 uint8_t const *tud_hid_descriptor_report_cb(uint8_t instance) {
     (void)instance;
@@ -122,7 +122,7 @@ static uint8_t const rndis_configuration[] = {
 
     // Interface number, string index, EP notification address and size, EP data
     // address (out, in) and size.
-    TUD_RNDIS_DESCRIPTOR(ITF_NUM_CDC, STRID_INTERFACE, EPNUM_NET_NOTIF, 8,
+    TUD_RNDIS_DESCRIPTOR(ITF_NUM_CDC, STRID_INTERFACE_NET, EPNUM_NET_NOTIF, 8,
                          EPNUM_NET_OUT, EPNUM_NET_IN,
                          CFG_TUD_NET_ENDPOINT_SIZE),
     // Interface number, string index, protocol, report descriptor len,
@@ -154,10 +154,11 @@ static char const *string_desc_arr[] = {
     [STRID_LANGID] =
         (const char[]){0x09, 0x04},   // supported language is English (0x0409)
     [STRID_MANUFACTURER] = "TinyUSB", // Manufacturer
-    [STRID_PRODUCT] = "TinyUSB Device",             // Product
-    [STRID_SERIAL] = "123456",                      // Serial
-    [STRID_INTERFACE] = "TinyUSB Network Interface" // Interface Description
-
+    [STRID_PRODUCT] = "TinyUSB Device", // Product
+    [STRID_SERIAL] = "123456",          // Serial
+    [STRID_INTERFACE_NET] =
+        "TinyUSB Network Interface", // Interface Description
+    [STRID_INTERFACE_HID] = "TinyUSB Joystick"
     // STRID_MAC index is handled separately
 };
 
