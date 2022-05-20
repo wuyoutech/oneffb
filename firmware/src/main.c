@@ -9,10 +9,10 @@
 #include <class/net/net_device.h>
 #include <dhserver.h>
 #include <dnserver.h>
+#include <lwip/apps/httpd.h>
 #include <lwip/init.h>
 #include <lwip/ip4_addr.h>
 #include <lwip/timeouts.h>
-#include <lwip/apps/httpd.h>
 
 #define INIT_IP4(a, b, c, d)                                                   \
     { PP_HTONL(LWIP_MAKEU32(a, b, c, d)) }
@@ -343,19 +343,22 @@ void board_init(void) {
     board_vbus_sense_init();
 }
 
-
 /* lwip has provision for using a mutex, when applicable */
-sys_prot_t sys_arch_protect(void)
-{
-  return 0;
-}
-void sys_arch_unprotect(sys_prot_t pval)
-{
-  (void)pval;
+sys_prot_t sys_arch_protect(void) { return 0; }
+void sys_arch_unprotect(sys_prot_t pval) { (void)pval; }
+
+/* lwip needs a millisecond time source, and the TinyUSB board support code has
+ * one available */
+uint32_t sys_now(void) { return board_millis(); }
+
+/* add callback function to avoid link error */
+uint8_t const *tud_hid_descriptor_report_cb(uint8_t instance) { return 0; }
+uint16_t tud_hid_get_report_cb(uint8_t instance, uint8_t report_id,
+                               hid_report_type_t report_type, uint8_t *buffer,
+                               uint16_t reqlen) {
+    return 0;
 }
 
-/* lwip needs a millisecond time source, and the TinyUSB board support code has one available */
-uint32_t sys_now(void)
-{
-  return board_millis();
-}
+void tud_hid_set_report_cb(uint8_t itf, uint8_t report_id,
+                           hid_report_type_t report_type, uint8_t const *buffer,
+                           uint16_t bufsize) {}
