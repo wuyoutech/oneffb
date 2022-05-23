@@ -364,6 +364,18 @@ void tud_hid_set_report_cb(uint8_t itf, uint8_t report_id,
                            hid_report_type_t report_type, uint8_t const *buffer,
                            uint16_t bufsize) {}
 
+/// HID Gamepad Protocol Report.
+typedef struct TU_ATTR_PACKED {
+    int16_t x;    ///< Delta x  movement of left analog-stick
+    int16_t y;    ///< Delta y  movement of left analog-stick
+    int16_t z;    ///< Delta z  movement of right analog-joystick
+    int16_t rz;   ///< Delta Rz movement of right analog-joystick
+    int16_t rx;   ///< Delta Rx movement of analog left trigger
+    int16_t ry;   ///< Delta Ry movement of analog right trigger
+    uint8_t hat; ///< Buttons mask for currently pressed buttons in the DPad/hat
+    uint32_t buttons; ///< Buttons mask for currently pressed buttons
+} hid_custom_report_t;
+
 static void send_hid_report(uint8_t report_id, uint32_t btn) {
     // skip if hid is not ready yet
     if (!tud_hid_ready())
@@ -372,14 +384,14 @@ static void send_hid_report(uint8_t report_id, uint32_t btn) {
     // use to avoid send multiple consecutive zero report for keyboard
     static bool has_gamepad_key = false;
 
-    hid_gamepad_report_t report = {.x = 0,
-                                   .y = 0,
-                                   .z = 0,
-                                   .rz = 0,
-                                   .rx = 0,
-                                   .ry = 0,
-                                   .hat = 0,
-                                   .buttons = 0};
+    hid_custom_report_t report = {.x = 0,
+                                  .y = 0,
+                                  .z = 0,
+                                  .rz = 0,
+                                  .rx = 0,
+                                  .ry = 0,
+                                  .hat = 0,
+                                  .buttons = 0};
 
     if (btn) {
         report.hat = GAMEPAD_HAT_UP;
