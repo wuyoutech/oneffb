@@ -242,7 +242,7 @@ void tud_umount_cb(void) { blink_interval_ms = blink_not_mounted; }
 // Within 7ms, device must draw an average of current less than 2.5 mA from bus
 void tud_suspend_cb(bool remote_wakeup_en) {
     (void)remote_wakeup_en;
-    blink_interval_ms = blink_suspended;
+    blink_interval_ms = blink_not_mounted;
 }
 
 // Invoked when usb bus is resumed
@@ -410,7 +410,7 @@ static void send_hid_report(uint8_t report_id, uint32_t btn) {
 
 void hid_task(void) {
     // Poll every 10ms
-    const uint32_t interval_ms = 10;
+    const uint32_t interval_ms = 1;
     static uint32_t start_ms = 0;
 
     if (board_millis() - start_ms < interval_ms)
