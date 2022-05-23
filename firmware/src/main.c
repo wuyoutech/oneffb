@@ -9,10 +9,10 @@
 #include <class/net/net_device.h>
 #include <dhserver.h>
 #include <dnserver.h>
+#include <lwip/apps/httpd.h>
 #include <lwip/init.h>
 #include <lwip/ip4_addr.h>
 #include <lwip/timeouts.h>
-#include <lwip/apps/httpd.h>
 
 #define INIT_IP4(a, b, c, d)                                                   \
     { PP_HTONL(LWIP_MAKEU32(a, b, c, d)) }
@@ -173,6 +173,7 @@ void led_blinking_task(void);
 void cdc_task(void);
 void usb_hal_init(void);
 void board_init(void);
+void hid_task(void);
 
 int main() {
     board_init();
@@ -194,6 +195,7 @@ int main() {
 
         // cdc_task();
         service_traffic();
+        hid_task();
     }
 }
 
@@ -240,7 +242,7 @@ void tud_umount_cb(void) { blink_interval_ms = blink_not_mounted; }
 // Within 7ms, device must draw an average of current less than 2.5 mA from bus
 void tud_suspend_cb(bool remote_wakeup_en) {
     (void)remote_wakeup_en;
-    blink_interval_ms = blink_suspended;
+    blink_interval_ms = blink_not_mounted;
 }
 
 // Invoked when usb bus is resumed
@@ -343,19 +345,83 @@ void board_init(void) {
     board_vbus_sense_init();
 }
 
-
 /* lwip has provision for using a mutex, when applicable */
-sys_prot_t sys_arch_protect(void)
-{
-  return 0;
-}
-void sys_arch_unprotect(sys_prot_t pval)
-{
-  (void)pval;
+sys_prot_t sys_arch_protect(void) { return 0; }
+void sys_arch_unprotect(sys_prot_t pval) { (void)pval; }
+
+/* lwip needs a millisecond time source, and the TinyUSB board support code has
+ * one available */
+uint32_t sys_now(void) { return board_millis(); }
+
+/* add callback function to avoid link error */
+uint16_t tud_hid_get_report_cb(uint8_t instance, uint8_t report_id,
+                               hid_report_type_t report_type, uint8_t *buffer,
+                               uint16_t reqlen) {
+    return 0;
 }
 
-/* lwip needs a millisecond time source, and the TinyUSB board support code has one available */
-uint32_t sys_now(void)
-{
-  return board_millis();
+void tud_hid_set_report_cb(uint8_t itf, uint8_t report_id,
+                           hid_report_type_t report_type, uint8_t const *buffer,
+                           uint16_t bufsize) {}
+
+/// HID Gamepad Protocol Report.
+typedef struct TU_ATTR_PACKED {
+    int16_t x;    ///< Delta x  movement of left analog-stick
+    int16_t y;    ///< Delta y  movement of left analog-stick
+    int16_t z;    ///< Delta z  movement of right analog-joystick
+    int16_t rz;   ///< Delta Rz movement of right analog-joystick
+    int16_t rx;   ///< Delta Rx movement of analog left trigger
+    int16_t ry;   ///< Delta Ry movement of analog right trigger
+    uint8_t hat; ///< Buttons mask for currently pressed buttons in the DPad/hat
+    uint32_t buttons; ///< Buttons mask for currently pressed buttons
+} hid_custom_report_t;
+
+static void send_hid_report(uint8_t report_id, uint32_t btn) {
+    // skip if hid is not ready yet
+    if (!tud_hid_ready())
+        return;
+
+    // use to avoid send multiple consecutive zero report for keyboard
+    static bool has_gamepad_key = false;
+
+    hid_custom_report_t report = {.x = 0,
+                                  .y = 0,
+                                  .z = 0,
+                                  .rz = 0,
+                                  .rx = 0,
+                                  .ry = 0,
+                                  .hat = 0,
+                                  .buttons = 0};
+
+    if (btn) {
+        report.hat = GAMEPAD_HAT_UP;
+        report.buttons = GAMEPAD_BUTTON_A;
+        tud_hid_report(1, &report, sizeof(report));
+
+        has_gamepad_key = true;
+    } else {
+        report.hat = GAMEPAD_HAT_CENTERED;
+        report.buttons = 0;
+        if (has_gamepad_key)
+            tud_hid_report(1, &report, sizeof(report));
+        has_gamepad_key = false;
+    }
+}
+
+void hid_task(void) {
+    // Poll every 10ms
+    const uint32_t interval_ms = 1;
+    static uint32_t start_ms = 0;
+
+    if (board_millis() - start_ms < interval_ms)
+        return;
+    start_ms += interval_ms;
+
+    uint32_t const btn = GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0) > 0 ? 0 : 1;
+
+    if (tud_suspended() && btn) {
+        tud_remote_wakeup();
+    } else {
+        send_hid_report(1, btn);
+    }
 }

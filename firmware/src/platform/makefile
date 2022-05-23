@@ -55,7 +55,7 @@ clean:
 	@-rm -rf $(build_dir)/*
 	@-rm -rf $(target).hex $(target).bin $(target).elf
 flash: $(target).elf
-	openocd -f interface/stlink.cfg -f target/stm32f4x.cfg -c init -c halt -c "flash write_image erase $(target).elf" -c reset -c shutdown
+	openocd -f interface/jlink-swd.cfg -f target/stm32f4x.cfg -c init -c halt -c "flash write_image erase $(target).elf" -c reset -c shutdown
 
 	
 # dependency
