@@ -248,44 +248,6 @@ void tud_suspend_cb(bool remote_wakeup_en) {
 // Invoked when usb bus is resumed
 void tud_resume_cb(void) { blink_interval_ms = blink_mounted; }
 
-//--------------------------------------------------------------------+
-// USB CDC
-//--------------------------------------------------------------------+
-void cdc_task(void) {
-    // connected() check for DTR bit
-    // Most but not all terminal client set this when making connection
-    // if ( tud_cdc_connected() )
-    {
-        // connected and there are data available
-        if (tud_cdc_available()) {
-            // read datas
-            char buf[64];
-            uint32_t count = tud_cdc_read(buf, sizeof(buf));
-            (void)count;
-
-            // Echo back
-            // Note: Skip echo by commenting out write() and write_flush()
-            // for throughput test e.g
-            //    $ dd if=/dev/zero of=/dev/ttyACM0 count=10000
-            tud_cdc_write(buf, count);
-            tud_cdc_write_flush();
-        }
-    }
-}
-
-// Invoked when cdc when line state changed e.g connected/disconnected
-void tud_cdc_line_state_cb(uint8_t itf, bool dtr, bool rts) {
-    (void)itf;
-    (void)rts;
-
-    // TODO set some indicator
-    if (dtr) {
-        // Terminal connected
-    } else {
-        // Terminal disconnected
-    }
-}
-
 // Invoked when CDC interface received data from host
 void tud_cdc_rx_cb(uint8_t itf) { (void)itf; }
 void board_led_write(bool state) { GPIO_WriteBit(GPIOC, GPIO_Pin_13, state); }
@@ -366,13 +328,10 @@ void tud_hid_set_report_cb(uint8_t itf, uint8_t report_id,
 
 /// HID Gamepad Protocol Report.
 typedef struct TU_ATTR_PACKED {
-    int16_t x;    ///< Delta x  movement of left analog-stick
-    int16_t y;    ///< Delta y  movement of left analog-stick
-    int16_t z;    ///< Delta z  movement of right analog-joystick
-    int16_t rz;   ///< Delta Rz movement of right analog-joystick
-    int16_t rx;   ///< Delta Rx movement of analog left trigger
-    int16_t ry;   ///< Delta Ry movement of analog right trigger
-    uint8_t hat; ///< Buttons mask for currently pressed buttons in the DPad/hat
+    int16_t x;        ///< Delta x  movement of left analog-stick
+    int16_t y;        ///< Delta y  movement of left analog-stick
+    int16_t z;        ///< Delta z  movement of right analog-joystick
+    int16_t rz;       ///< Delta Rz movement of right analog-joystick
     uint32_t buttons; ///< Buttons mask for currently pressed buttons
 } hid_custom_report_t;
 
@@ -384,23 +343,16 @@ static void send_hid_report(uint8_t report_id, uint32_t btn) {
     // use to avoid send multiple consecutive zero report for keyboard
     static bool has_gamepad_key = false;
 
-    hid_custom_report_t report = {.x = 0,
-                                  .y = 0,
-                                  .z = 0,
-                                  .rz = 0,
-                                  .rx = 0,
-                                  .ry = 0,
-                                  .hat = 0,
-                                  .buttons = 0};
+    hid_custom_report_t report = {
+        .x = 0, .y = 0, .z = 0, .rz = 0, .buttons = 0};
 
     if (btn) {
-        report.hat = GAMEPAD_HAT_UP;
         report.buttons = GAMEPAD_BUTTON_A;
         tud_hid_report(1, &report, sizeof(report));
 
         has_gamepad_key = true;
     } else {
-        report.hat = GAMEPAD_HAT_CENTERED;
+        // report.hat = GAMEPAD_HAT_CENTERED;
         report.buttons = 0;
         if (has_gamepad_key)
             tud_hid_report(1, &report, sizeof(report));
