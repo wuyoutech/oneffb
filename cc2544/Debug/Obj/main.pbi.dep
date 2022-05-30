@@ -1,0 +1,5 @@
+main.pbi: C:\Users\wuyou\Desktop\cc2544\src\main.c \
+  C:\Users\wuyou\Desktop\cc2544\src\hal_types.h \
+  C:\Users\wuyou\Desktop\cc2544\src\ioCC254x_bitdef.h \
+  C:\Program\ Files\ (x86)\IAR\ Systems\Embedded\ Workbench\ 8.3\8051\inc\ioCC2544.h \
+  C:\Users\wuyou\Desktop\cc2544\src\periph\system.h
