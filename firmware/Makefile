@@ -12,7 +12,7 @@ opt = -Og
 asm_sources +=
 c_sources += src/main.c
 c_sources += src/usb_descriptors.c
-c_sources += $(wildcard src/peripheral/src/*.c)
+c_sources += $(wildcard src/hal/src/*.c)
 # add tinyusb
 c_sources += $(wildcard src/tinyusb/src/*.c)
 c_sources += $(wildcard src/tinyusb/src/device/*.c)
@@ -38,7 +38,7 @@ defs += -DSTM32F411xE
 
 # includes 
 includes += -Isrc
-includes += -Isrc/peripheral/inc
+includes += -Isrc/hal/inc
 
 includes += -Isrc/tinyusb/src
 includes += -Isrc/tinyusb/src/portable/st/synopsys
