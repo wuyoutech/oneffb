@@ -1,6 +1,6 @@
-[submodule "firmware/src/tinyusb"]
-	path = firmware/src/tinyusb
+[submodule "src/tinyusb"]
+	path = src/tinyusb
 	url = git@github.com:hathach/tinyusb.git
-[submodule "firmware/src/lwip"]
-	path = firmware/src/lwip
+[submodule "src/lwip"]
+	path = src/lwip
 	url = git@github.com:lwip-tcpip/lwip.git
