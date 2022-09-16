@@ -5,6 +5,7 @@
 
 #include <led.h>
 #include <tusb.h>
+#include <systick.h>
 
 void led_blinking_task(void);
 void cdc_task(void);
@@ -24,12 +25,6 @@ int main() {
     }
 }
 
-//--------------------------------------------------------------------+
-// SYSTICK
-//--------------------------------------------------------------------+
-volatile uint32_t system_ticks = 0;
-void SysTick_Handler(void) { system_ticks++; }
-uint32_t board_millis(void) { return system_ticks; }
 void HardFault_Handler(void) { asm("bkpt"); }
 void OTG_FS_IRQHandler(void) { tud_int_handler(0); }
 
@@ -135,8 +130,7 @@ void board_init(void) {
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
 
-    /* config system clock */
-    SysTick_Config(SystemCoreClock / 1000);
+    systick_init();
 
     GPIO_InitTypeDef GPIO_InitStrucutre;
     GPIO_InitStrucutre.GPIO_Pin = GPIO_Pin_13;
