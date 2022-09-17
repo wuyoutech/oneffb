@@ -11,7 +11,6 @@ opt = -Og
 # sources 
 asm_sources +=
 c_sources += src/main.c
-c_sources += src/usb_descriptors.c
 c_sources += $(wildcard src/peripheral/src/*.c)
 # add tinyusb
 c_sources += $(wildcard src/tinyusb/src/*.c)

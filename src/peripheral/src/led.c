@@ -3,8 +3,9 @@
 
 #include <led.h>
 #include <stm32f4xx.h>
+#include <systick.h>
 
-void led_initialize(void) {
+void led_init(void) {
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
 
     GPIO_InitTypeDef GPIO_InitStructure;
@@ -14,37 +15,22 @@ void led_initialize(void) {
     GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_Init(GPIOC, &GPIO_InitStructure);
-
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
-    GPIO_Init(GPIOA, &GPIO_InitStructure);
-
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
-    GPIO_Init(GPIOA, &GPIO_InitStructure);
+    GPIO_WriteBit(GPIOC, GPIO_Pin_13, Bit_SET);
 }
 
-void led_sys_set(bool new_state) {
-    GPIO_WriteBit(GPIOC, GPIO_Pin_13, new_state ? Bit_RESET : Bit_SET);
+void led_set(bool state) {
+    GPIO_WriteBit(GPIOC, GPIO_Pin_13, state ? Bit_SET : Bit_RESET);
 }
 
-void led_clip_set(bool new_state) {
-    GPIO_WriteBit(GPIOA, GPIO_Pin_1, new_state ? Bit_RESET : Bit_SET);
+static uint32_t blink_interval_ms = blink_not_mounted;
+void led_blinking_task(void) {
+    static uint32_t start_ms = 0;
+    static bool led_state = false;
+    if (board_millis() - start_ms < blink_interval_ms)
+        return;
+
+    led_set(led_state);
+    led_state = led_state ? false : true;
 }
 
-void led_err_set(bool new_state) {
-    GPIO_WriteBit(GPIOA, GPIO_Pin_2, new_state ? Bit_RESET : Bit_SET);
-}
-
-void fetal_halt(void) {
-    while (1) {
-        led_sys_set(true);
-        led_clip_set(true);
-        led_err_set(true);
-        for (uint32_t i = 0; i < 0xfffff; i++)
-            ;
-        led_sys_set(false);
-        led_err_set(false);
-        led_clip_set(false);
-        for (uint32_t i = 0; i < 0xfffff; i++)
-            ;
-    }
-}
+void led_blinking_timeset(uint32_t time) { blink_interval_ms = time; }
