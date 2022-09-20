@@ -2,8 +2,8 @@
 #include <stdint.h>
 #include <stm32f4xx.h>
 
-#include <tusb.h>
 #include <led.h>
+#include <tusb.h>
 
 #define USB_OTG_FS ((USB_OTG_GlobalTypeDef *)USB_OTG_FS_PERIPH_BASE)
 static inline void board_vbus_sense_init(void) {
@@ -42,8 +42,6 @@ void usb_init(void) {
     tusb_init();
 }
 
-
-
 void OTG_FS_IRQHandler(void) { tud_int_handler(0); }
 
 //--------------------------------------------------------------------+
@@ -68,7 +66,7 @@ void tud_suspend_cb(bool remote_wakeup_en) {
 void tud_resume_cb(void) { led_blinking_timeset(blink_mounted); }
 
 //--------------------------------------------------------------------+
-// USB CDC
+// USB CDC callbacks 
 //--------------------------------------------------------------------+
 void cdc_task(void) {
     // connected() check for DTR bit
@@ -77,6 +75,7 @@ void cdc_task(void) {
     {
         // connected and there are data available
         if (tud_cdc_available()) {
+            // TODO: make write and read fifo here
             // read datas
             char buf[64];
             uint32_t count = tud_cdc_read(buf, sizeof(buf));
@@ -108,15 +107,14 @@ void tud_cdc_line_state_cb(uint8_t itf, bool dtr, bool rts) {
 // Invoked when CDC interface received data from host
 void tud_cdc_rx_cb(uint8_t itf) { (void)itf; }
 
-
 void usb_task(void) {
     tud_task();
     cdc_task();
 }
 
-
-
-
+//--------------------------------------------------------------------+
+// USB HID callbacks 
+//--------------------------------------------------------------------+
 
 // Invoked when received GET_REPORT control request
 // Application must fill buffer report's content and return its length.
@@ -146,4 +144,3 @@ void tud_hid_set_report_cb(uint8_t itf, uint8_t report_id,
     (void)buffer;
     (void)bufsize;
 }
-
